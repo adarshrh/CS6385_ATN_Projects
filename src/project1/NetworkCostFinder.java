@@ -1,5 +1,9 @@
 package project1;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class NetworkCostFinder {
@@ -8,29 +12,113 @@ public class NetworkCostFinder {
     int[][] costMatrix;
     int[][] demandMatrix;
     long cost;
+    ArrayList<Integer> path;
     NetworkCostFinder(int k){
         this.k=k;
         this.capacity = new int[25][25];
         this.cost=0;
     }
 
-    public void findMinPath(int k){
+    public void findMinPath(){
         GenerateCost generateCost = new GenerateCost();
         GenerateDemand demand = new GenerateDemand();
         costMatrix = generateCost.getCostMatrix(k);
         demandMatrix = demand.getDemandMatrix();
 
-        for(int i=0;i<demandMatrix.length;i++){
-            for(int j=0;j<demandMatrix.length;j++){
-                if(demandMatrix[i][j] > 0){
-                   //find best path
-                }
-            }
+        for(int i=0;i<25;i++){
+            dijkstra(i);
         }
 
     }
-    public static void main(String[] arg){
-        int k=3;
+    private void dijkstra(int src){
+        int[] dist = new int[25];
+        boolean[] visited = new boolean[25];
+        int[] parent = new int[25];
+        
+        for(int i=0;i<25;i++){
+            parent[i] = -1;
+            dist[i] = Integer.MAX_VALUE;
+            visited[i] = false;
+        }
+        dist[src] = 0;
 
+        for(int i=0;i<24;i++){
+            int u = minDistance(dist,visited);
+            visited[u] = true;
+            for (int v = 0; v < 25; v++) {
+
+                if (!visited[v] && costMatrix[u][v] > 0 && (dist[u] + costMatrix[u][v]) < dist[v])
+                {
+                    parent[v]  = u;
+                    dist[v] = dist[u] + costMatrix[u][v];
+                }
+            }
+          updateCostAndCapacity(dist,parent,src);
+        }
+        }
+
+    private void updateCostAndCapacity(int[] dist, int[] parent, int src) {
+        for(int i=0;i<25;i++){
+            if(demandMatrix[src][i]>0){
+               path = new ArrayList<>();
+                getPath(i,parent);
+                if(path.size()>0){
+                    int sum=0;
+                    int demand = demandMatrix[src][i];
+                    for(int index=0;index<path.size()-1;index++){
+                        capacity[path.get(index)][path.get(index+1)] += demand;
+                        sum+=costMatrix[path.get(index)][path.get(index+1)];
+                    }
+                    cost+=(sum*demand);
+                }
+            }
+        }
+    }
+
+    private void getPath(int currentVertex, int[] parent) {
+        if(currentVertex==-1){
+            return;
+        }
+        getPath(parent[currentVertex],parent);
+        path.add(currentVertex);
+    }
+
+
+    private int minDistance(int[] dist, boolean[] visited) {
+        int min = Integer.MAX_VALUE;
+        int min_index=-1;
+        for(int v=0;v<25;v++){
+            if(visited[v]==false && dist[v]<=min){
+                min = dist[v];
+                min_index = v;
+            }
+        }
+        return min_index;
+    }
+
+    public static void main(String[] arg) throws IOException {
+        int k=13;
+        NetworkCostFinder networkCostFinder = new NetworkCostFinder(k);
+        networkCostFinder.findMinPath();
+        System.out.println("Cost of network is "+networkCostFinder.cost);
+        System.out.println("Capacity matrix");
+        BufferedWriter fw = new BufferedWriter(new FileWriter("/Volumes/Macintosh_HD/ATN/k3_graph.txt"));
+        long edgeCount=0;
+        for(int i=0;i<25;i++){
+            System.out.println();
+            for(int j=0;j<25;j++){
+                System.out.print(networkCostFinder.capacity[i][j]+" ");
+                if(i!=j && networkCostFinder.capacity[i][j]>0){
+                  //  fw.write(i+" "+j+ " "+ networkCostFinder.capacity[i][j]);
+                  //  fw.newLine();
+                    edgeCount++;
+                }
+
+            }
+        }
+        fw.close();
+        System.out.println();
+        System.out.println("Edge count "+edgeCount);
+        System.out.println("density of network "+ (edgeCount/(25.0*24.0)));
     }
 }
