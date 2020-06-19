@@ -97,28 +97,31 @@ public class NetworkCostFinder {
     }
 
     public static void main(String[] arg) throws IOException {
-        int k=13;
-        NetworkCostFinder networkCostFinder = new NetworkCostFinder(k);
-        networkCostFinder.findMinPath();
-        System.out.println("Cost of network is "+networkCostFinder.cost);
-        System.out.println("Capacity matrix");
-        BufferedWriter fw = new BufferedWriter(new FileWriter("/Volumes/Macintosh_HD/ATN/k3_graph.txt"));
-        long edgeCount=0;
-        for(int i=0;i<25;i++){
-            System.out.println();
-            for(int j=0;j<25;j++){
-                System.out.print(networkCostFinder.capacity[i][j]+" ");
-                if(i!=j && networkCostFinder.capacity[i][j]>0){
-                  //  fw.write(i+" "+j+ " "+ networkCostFinder.capacity[i][j]);
-                  //  fw.newLine();
-                    edgeCount++;
-                }
+        int k=3;
+        for(k=3;k<=13;k++){
+            NetworkCostFinder networkCostFinder = new NetworkCostFinder(k);
+            networkCostFinder.findMinPath();
+            System.out.println("K-Value:"+k);
+            System.out.println("Cost of network is "+networkCostFinder.cost);
+            BufferedWriter fw = new BufferedWriter(new FileWriter("/Volumes/Macintosh_HD/ATN/k"+k+"_graph.csv"));
+            long edgeCount=0;
+            for(int i=0;i<25;i++){
+                //System.out.println();
+                for(int j=0;j<25;j++){
+                    //System.out.print(networkCostFinder.capacity[i][j]+" ");
+                    if(i!=j && networkCostFinder.capacity[i][j]>0){
+                          fw.write(i+","+j+ ","+ networkCostFinder.capacity[i][j]);
+                          fw.newLine();
+                        edgeCount++;
+                    }
 
+                }
             }
+            fw.close();
+            System.out.println("Number of edges:"+edgeCount);
+            System.out.println("Density of the Network "+ (edgeCount/(25.0*24.0)));
+            System.out.println();
         }
-        fw.close();
-        System.out.println();
-        System.out.println("Edge count "+edgeCount);
-        System.out.println("density of network "+ (edgeCount/(25.0*24.0)));
+
     }
 }
