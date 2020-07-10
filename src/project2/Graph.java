@@ -6,9 +6,11 @@ import java.util.Map;
 public class Graph {
 
     public static int[] studentID = new int[]{2,0,2,1,4,8,6,1,1,5};
+    //Data structures to store edge and node information
     public int adjMatrix[][];
     public int edgeToNodesMap[][];
     Map<String,Integer> nodesToEdgeMap;
+    //Probability to generate link reliability values
     public double p;
 
     public Graph(){
@@ -36,7 +38,11 @@ public class Graph {
         }
     }
 
-
+    /**
+     * Depth first search algorithm. Helper function to check the graph connectivity
+     * @param i
+     * @param visited
+     */
     public void dfs(int i, boolean visited[]) {
 
         visited[i] = true;
@@ -50,7 +56,10 @@ public class Graph {
 
     }
 
-
+    /**
+     * Check the graph connectivity to decide whether the network state is UP or DOWN
+     * @return
+     */
     public boolean isGraphConnected(){
         boolean seen[] = new boolean[5];
         boolean isConnected = true;
@@ -68,7 +77,10 @@ public class Graph {
         return isConnected;
     }
 
-
+    /**
+     * Calculates the reliability of the network topology by using individual link reliability
+     * @return
+     */
     public double calculateReliability() {
         double reliability = 1;
         for(int i = 0; i < 5; i++){
@@ -90,6 +102,13 @@ public class Graph {
         return reliability;
     }
 
+    /**
+     * Generates the link reliability based on the student ID
+     * @param i indicates i'th node
+     * @param j indicates j'th node
+     * @param p given probability
+     * @return
+     */
     public double getReliability(int i,int j, double p){
         String str = ""+i+","+j;
         int value = (int) Math.ceil(studentID[nodesToEdgeMap.get(str)]/3.0);
